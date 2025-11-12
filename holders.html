@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Holders • Confession Wall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #020617 100%);
+        --card: rgba(15, 23, 42, 0.35);
+        --border: rgba(148, 163, 184, 0.14);
+        --text: #e2e8f0;
+        --muted: rgba(226, 232, 240, 0.6);
+        --accent: #38bdf8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+      .nav {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0.8rem 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .logo a { color: var(--text); text-decoration: none; font-weight: 700; }
+      .links { display: flex; gap: .55rem; flex-wrap: wrap; }
+      .links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: .7rem;
+        padding: .35rem .7rem;
+        border-radius: 9999px;
+      }
+      .links a:hover, .links a.active {
+        background: rgba(56,189,248,.12);
+        color: var(--text);
+      }
+      .cta-btn {
+        background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+        border: none;
+        border-radius: 999px;
+        padding: .4rem .9rem;
+        font-weight: 600;
+        color: #020617;
+        cursor: pointer;
+        font-size: .7rem;
+      }
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 1.8rem 1.2rem 2.6rem;
+        text-align: center;
+      }
+      h1 { margin-bottom: .4rem; }
+      .sub { color: var(--muted); font-size: .75rem; margin-bottom: 1.1rem; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.1rem 1.1rem 1rem;
+        margin-top: 1rem;
+      }
+      .pill {
+        display: inline-block;
+        background: rgba(56,189,248,.18);
+        border: 1px solid rgba(56,189,248,.4);
+        border-radius: 999px;
+        padding: .25rem .7rem;
+        font-size: .62rem;
+        margin-bottom: .6rem;
+      }
+      .list { text-align: left; margin-top: .6rem; }
+      .list li { font-size: .7rem; margin-bottom: .35rem; }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <div class="logo"><a href="/">Confession Wall</a></div>
+        <div class="links">
+          <a href="/">Home</a>
+          <a href="/rules.html">Rules</a>
+          <a href="/public.html">Public</a>
+          <a href="/submit.html">Submit</a>
+          <a href="/updates.html">Updates</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/holders.html" class="active">Holders</a>
+        </div>
+        <button class="cta-btn" onclick="location.href='/submit.html'">Drop one</button>
+      </div>
+    </header>
+
+    <main>
+      <h1>Holders-only area</h1>
+      <p class="sub">We will unlock extra features and longer history for people who hold the CONFESS token.</p>
+
+      <div class="card">
+        <div class="pill">Coming soon</div>
+        <p style="font-size:.74rem; line-height:1.5;">
+          This section will check if your wallet holds the token. If yes, you'll see:
+        </p>
+        <ul class="list">
+          <li>Older / archived confessions</li>
+          <li>Extra moderation tools</li>
+          <li>Early experiments (truth/dare, randomizer)</li>
+        </ul>
+        <p style="opacity:.45; font-size:.65rem; margin-top:.6rem;">
+          We will publish integration details here once the token is live.
+        </p>
+      </div>
+    </main>
+
+    <script>
+      // keep same pattern
+      const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
+
+      const { createClient } = window.supabase;
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // later we can fetch holder-only content
+    </script>
+  </body>
+</html>
