@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Privacy • Confession Wall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #020617 100%);
+        --card: rgba(15, 23, 42, 0.35);
+        --border: rgba(148, 163, 184, 0.14);
+        --text: #e2e8f0;
+        --muted: rgba(226, 232, 240, 0.6);
+        --accent: #38bdf8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+      .nav {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0.8rem 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .logo a {
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .links {
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+      }
+      .links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.7rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 9999px;
+      }
+      .links a:hover,
+      .links a.active {
+        background: rgba(56, 189, 248, 0.12);
+        color: var(--text);
+      }
+      .cta-btn {
+        background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+        border: none;
+        border-radius: 999px;
+        padding: 0.4rem 0.9rem;
+        font-weight: 600;
+        color: #020617;
+        cursor: pointer;
+        font-size: 0.7rem;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 1.6rem 1.2rem 2.5rem;
+      }
+      h1 { margin-bottom: 0.4rem; }
+      .sub {
+        color: var(--muted);
+        font-size: 0.75rem;
+        margin-bottom: 1.1rem;
+        max-width: 650px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 0.9rem;
+        padding: 0.9rem 1rem 0.7rem;
+        margin-bottom: 0.8rem;
+      }
+      .card h3 {
+        margin-top: 0;
+        margin-bottom: 0.3rem;
+        font-size: 0.85rem;
+      }
+      .card p {
+        font-size: 0.72rem;
+        color: rgba(226, 232, 240, 0.9);
+      }
+      code {
+        background: rgba(15, 23, 42, 0.4);
+        padding: 0.12rem 0.35rem;
+        border-radius: 0.3rem;
+        font-size: 0.67rem;
+      }
+      @media (max-width: 768px) {
+        .nav { flex-wrap: wrap; }
+      }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <div class="logo"><a href="/">Confession Wall</a></div>
+        <div class="links">
+          <a href="/">Home</a>
+          <a href="/rules.html">Rules</a>
+          <a href="/public.html">Public</a>
+          <a href="/submit.html">Submit</a>
+          <a href="/updates.html">Updates</a>
+          <a href="/privacy.html" class="active">Privacy</a>
+          <a href="/holders.html">Holders</a>
+        </div>
+        <button class="cta-btn" onclick="location.href='/submit.html'">Drop one</button>
+      </div>
+    </header>
+
+    <main>
+      <h1>Privacy & Safety</h1>
+      <p class="sub">
+        This project is built to be anonymous first. We only keep what we need to review and show confessions.
+      </p>
+
+      <div class="card">
+        <h3>What we store</h3>
+        <p>
+          We store the confession text you submit and the timestamp (<code>created_at</code>). We also store whether it was approved (<code>approved</code>).
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>What we show</h3>
+        <p>
+          Only rows from the database where <code>approved = true</code> are shown on the public wall.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>What we don’t want</h3>
+        <p>
+          Please don’t submit real names, personal addresses, doxxing info, or anything that could be used to harm someone. Such posts will be rejected.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Why admin approval?</h3>
+        <p>
+          Anonymous walls get spammed fast. Manual approval keeps the feed fun, readable and safe for a global audience.
+        </p>
+      </div>
+    </main>
+
+    <script>
+      // keep the same pattern as other pages
+      const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
+
+      const { createClient } = window.supabase;
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // not fetching anything here for now
+    </script>
+  </body>
+</html>
