@@ -2,56 +2,189 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Confession Rules</title>
+    <title>Rules • Confession Wall</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; }
-      header { position: sticky; top:0; background: rgba(2,6,23,.55); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(148,163,184,.12); }
-      .nav { max-width: 920px; margin: 0 auto; padding: .8rem 1.2rem; display:flex; justify-content: space-between; align-items:center; }
-      a { color: #e2e8f0; text-decoration: none; }
-      .container { max-width: 920px; margin: 0 auto; padding: 1.5rem 1.2rem 2.5rem; }
-      h1 { font-size: 1.7rem; margin-bottom: .75rem; }
-      .card { background: rgba(15,23,42,.3); border: 1px solid rgba(148,163,184,.12); border-radius: .9rem; padding: 1rem 1.1rem; margin-bottom: 1rem; }
-      ul { padding-left: 1.2rem; }
-      li { margin-bottom: .4rem; }
-      .tag { display:inline-block; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.3); border-radius:999px; padding:.2rem .6rem; font-size:.65rem; margin-bottom:.7rem; }
+      :root {
+        --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #020617 100%);
+        --surface: rgba(2, 6, 23, 0.55);
+        --card: rgba(15, 23, 42, 0.35);
+        --border: rgba(148, 163, 184, 0.14);
+        --text: #e2e8f0;
+        --muted: rgba(226, 232, 240, 0.6);
+        --accent: #38bdf8;
+        --radius: 1rem;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+      .nav {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0.8rem 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .logo a {
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .links {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+      }
+      .links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.72rem;
+        padding: 0.3rem 0.55rem;
+        border-radius: 9999px;
+      }
+      .links a.active,
+      .links a:hover {
+        background: rgba(56, 189, 248, 0.12);
+        color: var(--text);
+      }
+      .cta-btn {
+        background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+        border: none;
+        border-radius: 9999px;
+        padding: 0.4rem 0.9rem;
+        font-weight: 600;
+        color: #020617;
+        cursor: pointer;
+        font-size: 0.7rem;
+      }
+      main {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 1.5rem 1.2rem 2.5rem;
+      }
+      .title-block {
+        max-width: 620px;
+        margin-bottom: 1.2rem;
+      }
+      h1 {
+        font-size: clamp(1.6rem, 3vw, 1.9rem);
+        margin-bottom: 0.4rem;
+      }
+      .subtitle {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1rem;
+        margin-top: 1.1rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 0.9rem;
+        padding: 0.9rem 1rem 0.85rem;
+      }
+      .card h3 {
+        margin-top: 0;
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+      }
+      .card p, .card ul {
+        font-size: 0.74rem;
+        color: rgba(226, 232, 240, 0.78);
+      }
+      .tag {
+        display: inline-flex;
+        gap: 0.35rem;
+        align-items: center;
+        background: rgba(56, 189, 248, 0.15);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 9999px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.6rem;
+        margin-bottom: 0.65rem;
+      }
+      ul { padding-left: 1.1rem; margin: 0; }
+      li { margin-bottom: 0.3rem; }
+      @media (max-width: 768px) {
+        .nav { flex-wrap: wrap; }
+        .links { width: 100%; }
+      }
     </style>
   </head>
   <body>
     <header>
       <div class="nav">
-        <a href="/">Confession Wall</a>
-        <div style="display:flex; gap:.8rem;">
-          <a href="/rules.html">Rules</a>
-          <a href="/public.html">Public Wall</a>
+        <div class="logo"><a href="/">Confession Wall</a></div>
+        <div class="links">
+          <a href="/">Home</a>
+          <a href="/rules.html" class="active">Rules</a>
+          <a href="/public.html">Public</a>
           <a href="/submit.html">Submit</a>
+          <a href="/updates.html">Updates</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/holders.html">Holders</a>
         </div>
+        <button class="cta-btn" onclick="location.href='/submit.html'">Drop one</button>
       </div>
     </header>
-    <main class="container">
-      <span class="tag">How it works</span>
-      <h1>Rules & Review Process</h1>
-      <div class="card">
-        <h3>1. Everyone can submit</h3>
-        <p>Siteye giren herkes anonim olarak bir confession gönderebilir. Login yok.</p>
+    <main>
+      <div class="title-block">
+        <div class="tag">How it works</div>
+        <h1>Rules & Moderation</h1>
+        <p class="subtitle">
+          Herkes anonim gönderebilir ama hiçbir içerik sen onaylamadan ana duvara düşmez. Aşağıdaki kuralları duvarda da gösterebilirsin.
+        </p>
       </div>
-      <div class="card">
-        <h3>2. Nothing goes live without approval</h3>
-        <p>Her gönderi önce admin’e düşer. Admin onaylayınca ana duvarda görünür.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>1. Anonim gönderim</h3>
+          <p>Login yok. Sitedeki formu gören herkes bir confession bırakabilir.</p>
+        </div>
+        <div class="card">
+          <h3>2. Admin onayı zorunlu</h3>
+          <p>Gönderiler önce Supabase tablosuna düşer, <strong>approved = false</strong> olarak. Sen true yapınca ana sayfada görünür.</p>
+        </div>
+        <div class="card">
+          <h3>3. Yasak içerik</h3>
+          <ul>
+            <li>Gerçek isim / adres / telefon</li>
+            <li>Nefret / hedef gösterme</li>
+            <li>Kişisel saldırı</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>4. Uzunluk</h3>
+          <p>Şimdilik 240 karakter sınırı var. İstersen artırırız ama kısa mesajlar daha akıcı durur.</p>
+        </div>
+        <div class="card">
+          <h3>5. Reddedilenler</h3>
+          <p>Konsept dışı veya tehlikeli şeyleri yayınlama hakkını saklı tut.</p>
+        </div>
+        <div class="card">
+          <h3>6. Token / holder ayrıcalığı</h3>
+          <p>İleride bazı confession’ları sadece holder’lara göstereceğiz. Şimdilik hepsi public.</p>
+        </div>
       </div>
-      <div class="card">
-        <h3>3. Do not post:</h3>
-        <ul>
-          <li>Gerçek isim, adres, telefon, sosyal hesap</li>
-          <li>Nefret / ırkçılık / hedef gösterme</li>
-          <li>Doğrudan zarar verecek bilgiler</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>4. Admin may refuse any confession</h3>
-        <p>Konsept dışı, çok uzun, çok kişisel veya sorun yaratacak içerikler yayınlanmayabilir.</p>
-      </div>
-      <p style="opacity:.6; margin-top:1.4rem;">Need help or want a feature? <a href="/contact.html">contact here</a>.</p>
     </main>
   </body>
 </html>
