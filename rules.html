@@ -7,13 +7,11 @@
     <style>
       :root {
         --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #020617 100%);
-        --surface: rgba(2, 6, 23, 0.55);
         --card: rgba(15, 23, 42, 0.35);
         --border: rgba(148, 163, 184, 0.14);
         --text: #e2e8f0;
         --muted: rgba(226, 232, 240, 0.6);
         --accent: #38bdf8;
-        --radius: 1rem;
       }
       * { box-sizing: border-box; }
       body {
@@ -44,29 +42,28 @@
         color: var(--text);
         text-decoration: none;
         font-weight: 700;
-        letter-spacing: -0.01em;
       }
       .links {
         display: flex;
-        gap: 0.65rem;
+        gap: 0.55rem;
         flex-wrap: wrap;
       }
       .links a {
         color: var(--muted);
         text-decoration: none;
-        font-size: 0.72rem;
-        padding: 0.3rem 0.55rem;
+        font-size: 0.7rem;
+        padding: 0.35rem 0.7rem;
         border-radius: 9999px;
       }
-      .links a.active,
-      .links a:hover {
+      .links a:hover,
+      .links a.active {
         background: rgba(56, 189, 248, 0.12);
         color: var(--text);
       }
       .cta-btn {
         background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
         border: none;
-        border-radius: 9999px;
+        border-radius: 999px;
         padding: 0.4rem 0.9rem;
         font-weight: 600;
         color: #020617;
@@ -76,59 +73,46 @@
       main {
         max-width: 1140px;
         margin: 0 auto;
-        padding: 1.5rem 1.2rem 2.5rem;
-      }
-      .title-block {
-        max-width: 620px;
-        margin-bottom: 1.2rem;
+        padding: 1.6rem 1.2rem 2.5rem;
       }
       h1 {
-        font-size: clamp(1.6rem, 3vw, 1.9rem);
-        margin-bottom: 0.4rem;
+        font-size: clamp(1.5rem, 3vw, 1.7rem);
+        margin-bottom: 0.3rem;
       }
-      .subtitle {
+      .sub {
         color: var(--muted);
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        margin-bottom: 1.1rem;
+        max-width: 650px;
       }
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1rem;
-        margin-top: 1.1rem;
       }
       .card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 0.9rem;
-        padding: 0.9rem 1rem 0.85rem;
+        padding: 0.9rem 1rem 0.7rem;
       }
       .card h3 {
         margin-top: 0;
         margin-bottom: 0.4rem;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
       .card p, .card ul {
-        font-size: 0.74rem;
+        font-size: 0.72rem;
         color: rgba(226, 232, 240, 0.78);
-      }
-      .tag {
-        display: inline-flex;
-        gap: 0.35rem;
-        align-items: center;
-        background: rgba(56, 189, 248, 0.15);
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        border-radius: 9999px;
-        padding: 0.2rem 0.6rem;
-        font-size: 0.6rem;
-        margin-bottom: 0.65rem;
       }
       ul { padding-left: 1.1rem; margin: 0; }
       li { margin-bottom: 0.3rem; }
       @media (max-width: 768px) {
         .nav { flex-wrap: wrap; }
-        .links { width: 100%; }
       }
     </style>
+    <!-- we include supabase client just to keep pages consistent -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <header>
@@ -146,45 +130,54 @@
         <button class="cta-btn" onclick="location.href='/submit.html'">Drop one</button>
       </div>
     </header>
+
     <main>
-      <div class="title-block">
-        <div class="tag">How it works</div>
-        <h1>Rules & Moderation</h1>
-        <p class="subtitle">
-          Herkes anonim gönderebilir ama hiçbir içerik sen onaylamadan ana duvara düşmez. Aşağıdaki kuralları duvarda da gösterebilirsin.
-        </p>
-      </div>
+      <h1>Rules & Moderation</h1>
+      <p class="sub">
+        Everyone can submit anonymously, but nothing appears on the wall unless the admin approves it. Keep it fun and safe for everyone.
+      </p>
 
       <div class="grid">
         <div class="card">
-          <h3>1. Anonim gönderim</h3>
-          <p>Login yok. Sitedeki formu gören herkes bir confession bırakabilir.</p>
+          <h3>1. Anonymous submissions</h3>
+          <p>Anyone who visits the site can submit a confession without logging in.</p>
         </div>
         <div class="card">
-          <h3>2. Admin onayı zorunlu</h3>
-          <p>Gönderiler önce Supabase tablosuna düşer, <strong>approved = false</strong> olarak. Sen true yapınca ana sayfada görünür.</p>
+          <h3>2. Admin approval first</h3>
+          <p>Every submission is stored with <code>approved = false</code>. After approval, it becomes visible on the wall.</p>
         </div>
         <div class="card">
-          <h3>3. Yasak içerik</h3>
+          <h3>3. Do not post</h3>
           <ul>
-            <li>Gerçek isim / adres / telefon</li>
-            <li>Nefret / hedef gösterme</li>
-            <li>Kişisel saldırı</li>
+            <li>Real names, phone numbers, addresses</li>
+            <li>Hate speech, doxxing, threats</li>
+            <li>Anything that could harm someone</li>
           </ul>
         </div>
         <div class="card">
-          <h3>4. Uzunluk</h3>
-          <p>Şimdilik 240 karakter sınırı var. İstersen artırırız ama kısa mesajlar daha akıcı durur.</p>
+          <h3>4. Length</h3>
+          <p>We currently use a 240 character limit. Short, readable confessions make the wall look better.</p>
         </div>
         <div class="card">
-          <h3>5. Reddedilenler</h3>
-          <p>Konsept dışı veya tehlikeli şeyleri yayınlama hakkını saklı tut.</p>
+          <h3>5. Admin can decline</h3>
+          <p>Off-topic, spammy or risky confessions may be rejected without explanation.</p>
         </div>
         <div class="card">
-          <h3>6. Token / holder ayrıcalığı</h3>
-          <p>İleride bazı confession’ları sadece holder’lara göstereceğiz. Şimdilik hepsi public.</p>
+          <h3>6. Future: token-only content</h3>
+          <p>Later we may show extra confessions only to token holders. This page will be updated when that happens.</p>
         </div>
       </div>
     </main>
+
+    <script>
+      // same pattern as other pages:
+      const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
+
+      // we don't fetch anything here yet, but if later we want "rules from DB" or "latest update"
+      // we can call supabase with these constants
+      const { createClient } = window.supabase;
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
   </body>
 </html>
