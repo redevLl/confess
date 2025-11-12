@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin • Confession Wall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #020617 100%);
+        --card: rgba(15, 23, 42, 0.35);
+        --border: rgba(148, 163, 184, 0.14);
+        --text: #e2e8f0;
+        --muted: rgba(226, 232, 240, 0.6);
+        --accent: #38bdf8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        min-height: 100vh;
+      }
+      header {
+        background: rgba(2,6,23,.45);
+        border-bottom: 1px solid rgba(148,163,184,.12);
+        backdrop-filter: blur(8px);
+      }
+      .nav {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: .8rem 1.2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+      .logo a { color: var(--text); text-decoration: none; font-weight: 700; }
+      .links { display: flex; gap: .55rem; flex-wrap: wrap; }
+      .links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: .7rem;
+        padding: .35rem .7rem;
+        border-radius: 9999px;
+      }
+      .links a:hover {
+        background: rgba(56,189,248,.12);
+        color: var(--text);
+      }
+      main {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 1.4rem 1.2rem 2.5rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: .8rem;
+        padding: .85rem .9rem .7rem;
+        margin-bottom: .75rem;
+      }
+      .small { font-size: .65rem; color: var(--muted); }
+      button {
+        background: #22c55e;
+        border: none;
+        padding: .35rem .75rem;
+        border-radius: .4rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .danger { background: #ef4444; }
+      .hidden { display: none; }
+      input[type=password] {
+        background: rgba(15,23,42,.15);
+        border: 1px solid rgba(148,163,184,.4);
+        border-radius: .4rem;
+        padding: .35rem .6rem;
+        color: #e2e8f0;
+      }
+      .topbar { display: flex; gap: 1rem; align-items: center; margin-bottom: .8rem; }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <div class="logo"><a href="/">Confession Wall</a></div>
+        <div class="links">
+          <a href="/">Home</a>
+          <a href="/public.html">Public</a>
+          <a href="/submit.html">Submit</a>
+          <a href="/updates.html">Updates</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <h1 style="margin-bottom:.3rem;">Admin panel</h1>
+      <p class="small">Approve incoming confessions. Keep this URL private.</p>
+
+      <div id="lock">
+        <p class="small" style="margin-top:.6rem;">Enter admin password:</p>
+        <input type="password" id="pwd" />
+        <button onclick="unlock()">Enter</button>
+      </div>
+
+      <div id="panel" class="hidden">
+        <div class="topbar">
+          <button onclick="loadPending()">Reload</button>
+          <p id="status" class="small"></p>
+        </div>
+        <div id="list"></div>
+      </div>
+    </main>
+
+    <script>
+      // your supabase config (same as other pages)
+      const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
+
+      const { createClient } = window.supabase;
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // simple front-only password
+      const ADMIN_PASS = "confess-admin"; // change this
+
+      function unlock() {
+        const val = document.getElementById('pwd').value;
+        if (val === ADMIN_PASS) {
+          document.getElementById('lock').classList.add('hidden');
+          document.getElementById('panel').classList.remove('hidden');
+          loadPending();
+        } else {
+          alert('Wrong password');
+        }
+      }
+
+      async function loadPending() {
+        const list = document.getElementById('list');
+        list.innerHTML = 'Loading...';
+        const { data, error } = await supabase
+          .from('confessions')
+          .select('*')
+          .eq('approved', false)
+          .order('created_at', { ascending: false });
+        if (error) {
+          list.innerHTML = 'Error loading.';
+          return;
+        }
+        if (!data.length) {
+          list.innerHTML = '<p class="small">No pending confessions 🎉</p>';
+          return;
+        }
+        list.innerHTML = '';
+        data.forEach(row => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.innerHTML = `
+            <p>${row.text}</p>
+            <p class="small">${new Date(row.created_at).toLocaleString()}</p>
+            <button onclick="approve('${row.id}')">Approve</button>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      async function approve(id) {
+        const { error } = await supabase
+          .from('confessions')
+          .update({ approved: true })
+          .eq('id', id);
+        if (error) {
+          alert('Error approving');
+          return;
+        }
+        document.getElementById('status').textContent = 'Approved ✓';
+        loadPending();
+      }
+    </script>
+  </body>
+</html>
