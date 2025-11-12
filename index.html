@@ -9,15 +9,13 @@
         --bg: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #020617 100%);
         --surface: rgba(2, 6, 23, 0.55);
         --card: rgba(15, 23, 42, 0.4);
-        --border: rgba(148, 163, 184, 0.24);
+        --border: rgba(148, 163, 184, 0.13);
         --text: #e2e8f0;
         --muted: rgba(226, 232, 240, 0.6);
         --accent: #38bdf8;
-        --radius-lg: 1.25rem;
+        --radius-lg: 1.2rem;
       }
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
       body {
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
         background: var(--bg);
@@ -29,213 +27,234 @@
         position: sticky;
         top: 0;
         z-index: 50;
-        backdrop-filter: blur(12px);
-        background: rgba(2, 6, 23, 0.35);
-        border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+        background: rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
       }
       .nav {
         max-width: 1140px;
         margin: 0 auto;
-        padding: 0.9rem 1.2rem;
+        padding: 0.8rem 1.2rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 1rem;
       }
-      .logo {
+      .logo a {
+        text-decoration: none;
+        color: var(--text);
         font-weight: 700;
-        letter-spacing: -0.01em;
+        letter-spacing: -.01em;
+      }
+      .links {
+        display: flex;
+        gap: .55rem;
+        flex-wrap: wrap;
+      }
+      .links a {
+        color: var(--muted);
+        font-size: .7rem;
+        text-decoration: none;
+        padding: .35rem .7rem;
+        border-radius: 9999px;
+      }
+      .links a:hover,
+      .links a.active {
+        background: rgba(56,189,248,.12);
+        color: var(--text);
       }
       .cta-btn {
         background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-        color: #020617;
         border: none;
-        padding: 0.45rem 1rem;
-        border-radius: 9999px;
+        border-radius: 999px;
+        padding: .4rem .9rem;
         font-weight: 600;
+        color: #020617;
         cursor: pointer;
+        font-size: .7rem;
       }
       main {
         max-width: 1140px;
         margin: 0 auto;
         padding: 1.5rem 1.2rem 2.5rem;
         display: grid;
-        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+        grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
         gap: 1.5rem;
       }
       @media (max-width: 900px) {
-        main {
-          grid-template-columns: 1fr;
-        }
+        main { grid-template-columns: 1fr; }
       }
+      /* left */
       .hero-card {
-        background: radial-gradient(circle at top, rgba(15,23,42,.4) 0%, rgba(15,23,42,.1) 80%);
-        border: 1px solid rgba(148, 163, 184, 0.09);
+        background: radial-gradient(circle at top, rgba(15,23,42,.4) 0%, rgba(15,23,42,.1) 85%);
+        border: 1px solid rgba(148,163,184,.08);
         border-radius: calc(var(--radius-lg) + .3rem);
-        padding: 1.25rem 1.25rem 1.2rem;
-        backdrop-filter: blur(10px);
-      }
-      .hero-title {
-        font-size: clamp(1.8rem, 3vw, 2.1rem);
-        margin-bottom: 0.35rem;
-      }
-      .hero-sub {
-        color: var(--muted);
-        margin-bottom: 1rem;
+        padding: 1.25rem 1.25rem 1.1rem;
       }
       .feature-badge {
         display: inline-flex;
-        gap: 0.4rem;
+        gap: .4rem;
         align-items: center;
-        background: rgba(56, 189, 248, 0.15);
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        color: #e2e8f0;
+        background: rgba(56,189,248,.15);
+        border: 1px solid rgba(56,189,248,.25);
         border-radius: 9999px;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.7rem;
-        margin-bottom: 0.9rem;
+        padding: .25rem .7rem;
+        font-size: .6rem;
+        margin-bottom: .8rem;
+      }
+      .hero-title {
+        font-size: clamp(1.8rem, 3vw, 2.1rem);
+        margin-bottom: .35rem;
+      }
+      .hero-sub {
+        color: var(--muted);
+        font-size: .78rem;
+        margin-bottom: 1rem;
       }
       .form-card {
-        margin-top: 1rem;
-        background: rgba(2, 6, 23, 0.3);
-        border: 1px solid rgba(148, 163, 184, 0.08);
+        background: rgba(2,6,23,.3);
+        border: 1px solid rgba(148,163,184,.08);
         border-radius: 1rem;
-        padding: 0.7rem 0.7rem 0.5rem;
+        padding: .75rem .75rem .6rem;
       }
       textarea {
         width: 100%;
         min-height: 110px;
-        border-radius: 0.7rem;
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        padding: 0.7rem 0.75rem;
-        background: rgba(15, 23, 42, 0.12);
+        border-radius: .7rem;
+        border: 1px solid rgba(148,163,184,.12);
+        background: rgba(15,23,42,.12);
         color: var(--text);
+        padding: .6rem .7rem;
         resize: vertical;
       }
       button.primary {
-        margin-top: 0.6rem;
+        margin-top: .6rem;
         background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
         border: none;
-        padding: 0.5rem 1.05rem;
-        border-radius: 0.6rem;
+        padding: .5rem 1.05rem;
+        border-radius: .6rem;
         color: #020617;
         font-weight: 600;
         cursor: pointer;
       }
       .status {
-        font-size: 0.68rem;
-        margin-top: 0.4rem;
+        font-size: .65rem;
         color: var(--muted);
+        margin-top: .4rem;
       }
-      /* right side wall */
+      /* right wall */
       .wall-wrapper {
-        background: rgba(2, 6, 23, 0.15);
-        border: 1px solid rgba(148, 163, 184, 0.08);
+        background: rgba(2,6,23,.15);
+        border: 1px solid rgba(148,163,184,.08);
         border-radius: calc(var(--radius-lg) + .3rem);
         padding: 1rem;
-        height: 100%;
+        min-height: 70vh;
         display: flex;
         flex-direction: column;
-        min-height: 70vh;
+        gap: .85rem;
       }
-      .wall-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
+      .featured {
+        background: linear-gradient(135deg, rgba(56,189,248,.35) 0%, rgba(15,23,42,.3) 80%);
+        border: 1px solid rgba(148,163,184,.14);
+        border-radius: .9rem;
+        padding: .85rem .85rem .6rem;
       }
-      .wall-title {
-        font-weight: 600;
+      .featured-title {
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        opacity: .7;
+        margin-bottom: .3rem;
       }
-      .wall-hint {
-        font-size: 0.65rem;
-        color: var(--muted);
+      .featured-text {
+        font-size: .9rem;
+        line-height: 1.35;
+      }
+      .featured-meta {
+        font-size: .6rem;
+        opacity: .55;
+        margin-top: .35rem;
       }
       .wall-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: .65rem;
         overflow-y: auto;
-        padding-right: 0.3rem;
-        max-height: 68vh;
+        max-height: 60vh;
+        padding-right: .3rem;
       }
       .conf-card {
-        background: rgba(15, 23, 42, 0.45);
-        border: 1px solid rgba(148, 163, 184, 0.11);
-        border-radius: 0.9rem;
-        padding: 0.75rem 0.85rem 0.6rem;
+        background: rgba(15,23,42,.45);
+        border: 1px solid rgba(148,163,184,.11);
+        border-radius: .7rem;
+        padding: .6rem .75rem .5rem;
       }
-      .conf-text {
-        line-height: 1.35;
-      }
-      .conf-meta {
-        margin-top: 0.4rem;
-        font-size: 0.6rem;
-        color: rgba(226, 232, 240, 0.35);
-      }
+      .conf-text { line-height: 1.35; font-size: .78rem; }
+      .conf-meta { margin-top: .35rem; font-size: .6rem; color: rgba(226,232,240,.35); }
+      a { color: inherit; }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <header>
       <div class="nav">
-        <div class="logo">Confession Wall</div>
-        <button class="cta-btn" onclick="scrollToForm()">Drop a confession</button>
+        <div class="logo"><a href="/">Confession Wall</a></div>
+        <div class="links">
+          <a href="/" class="active">Home</a>
+          <a href="/rules.html">Rules</a>
+          <a href="/public.html">Public</a>
+          <a href="/submit.html">Submit</a>
+          <a href="/updates.html">Updates</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/holders.html">Holders</a>
+        </div>
+        <button class="cta-btn" onclick="document.getElementById('confessionInput').focus()">Drop one</button>
       </div>
     </header>
 
     <main>
+      <!-- LEFT: form / intro -->
       <section>
         <div class="hero-card" id="formArea">
-          <div class="feature-badge">
-            🔒 Admin-approved
-            <span style="opacity:.6;">No names, no login</span>
-          </div>
+          <div class="feature-badge">🔒 Admin-approved · anonymous</div>
           <h1 class="hero-title">Say it here, not in the group chat.</h1>
           <p class="hero-sub">
-            Everything goes through your approval. Site visitors can submit, but only approved ones are shown on the wall.
+            Confessions go to the admin first. Once approved, they show up on the wall. No accounts, no names.
           </p>
 
           <div class="form-card">
-            <h3 style="margin:0 0 .4rem;">Write a confession</h3>
+            <h3 style="margin:0 0 .4rem; font-size:.8rem;">Write a confession</h3>
             <textarea id="confessionInput" maxlength="240" placeholder="I still stalk my ex 👀"></textarea>
             <button class="primary" onclick="submitConfession()">Send for approval</button>
             <p id="status" class="status"></p>
           </div>
 
           <p class="status" style="margin-top:.75rem;">
-            Confess with respect, please.
+            Tip: Check <a href="/rules.html" style="color:var(--accent);">rules</a> before posting.
           </p>
         </div>
       </section>
 
+      <!-- RIGHT: featured + list -->
       <section class="wall-wrapper">
-        <div class="wall-header">
-          <div>
-            <div class="wall-title">Latest approved confessions</div>
-            <div class="wall-hint">Fresh ones appear here after you approve them.</div>
-          </div>
-        </div>
-        <div id="feed" class="wall-list">
-          <!-- confessions will go here -->
-        </div>
+        <div id="featured" class="featured" style="display:none;"></div>
+        <div id="feed" class="wall-list"></div>
       </section>
     </main>
 
     <script>
-      // BURAYA KENDİ BİLGİLERİNİ KOY
+      // KENDİ SUPABASE BİLGİLERİNİ YAZ
       const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
 
       const { createClient } = window.supabase;
       const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      function scrollToForm() {
-        document.getElementById("formArea").scrollIntoView({ behavior: "smooth" });
-      }
-
       async function loadConfessions() {
         const feed = document.getElementById("feed");
+        const featured = document.getElementById("featured");
         feed.innerHTML = "<p class='status'>Loading...</p>";
+
         const { data, error } = await supabase
           .from("confessions")
           .select("*")
@@ -254,8 +273,17 @@
           return;
         }
 
+        // İlkini featured yapalım
+        const [first, ...rest] = data;
+        featured.style.display = "block";
+        featured.innerHTML = `
+          <div class="featured-title">Featured confession</div>
+          <div class="featured-text">${first.text}</div>
+          <div class="featured-meta">${new Date(first.created_at).toLocaleString()}</div>
+        `;
+
         feed.innerHTML = "";
-        data.forEach((row) => {
+        rest.forEach(row => {
           const card = document.createElement("div");
           card.className = "conf-card";
           card.innerHTML = `
@@ -274,13 +302,11 @@
         const { error } = await supabase
           .from("confessions")
           .insert({ text: val, approved: false });
-
         if (error) {
           console.error(error);
           status.textContent = "Error sending. Try again.";
           return;
         }
-
         input.value = "";
         status.textContent = "Sent ✅ waiting for admin approval.";
       }
@@ -289,4 +315,3 @@
     </script>
   </body>
 </html>
-
