@@ -101,7 +101,7 @@
         }
       });
 
-      // --- Data: pending list ---
+      // --- Data: pending list (POST) ---
       async function loadPending(){
         const list = document.getElementById('list');
         list.innerHTML = 'Loading...';
@@ -111,9 +111,10 @@
 
         const h = new Headers();
         h.set('Authorization','Bearer '+token);
+        h.set('Content-Type','application/json');
 
         try{
-          const r = await fetch('/api/pending', { headers: h });
+          const r = await fetch('/api/pending', { method:'POST', headers: h, body: '{}' });
           if (r.status === 401){ list.innerHTML = 'Unauthorized (bad token)'; return; }
           if (!r.ok){ list.innerHTML = 'Error loading ('+r.status+')'; return; }
 
@@ -135,15 +136,16 @@
         }
       }
 
-      // --- Approve action ---
+      // --- Approve action (POST) ---
       async function approve(id){
         const token = getToken();
         if(!token){ alert('No admin token'); return; }
 
         const h = new Headers();
         h.set('Authorization','Bearer '+token);
+        h.set('Content-Type','application/json');
 
-        const r = await fetch('/api/approve?id='+encodeURIComponent(id), { headers: h });
+        const r = await fetch('/api/approve', { method:'POST', headers: h, body: JSON.stringify({ id }) });
         if(!r.ok){ alert('Approve failed'); return; }
         document.getElementById('status').textContent = 'Approved ✓';
         loadPending();
