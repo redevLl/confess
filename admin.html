@@ -60,12 +60,12 @@
         padding: .85rem .9rem .7rem;
         margin-bottom: .75rem;
       }
-      .small { font-size: .65rem; color: var(--muted); }
+      .small { font-size: .75rem; color: var(--muted); }
       button {
         background: #22c55e;
         border: none;
-        padding: .35rem .75rem;
-        border-radius: .4rem;
+        padding: .45rem .8rem;
+        border-radius: .5rem;
         font-weight: 600;
         cursor: pointer;
       }
@@ -74,8 +74,8 @@
       input[type=password] {
         background: rgba(15,23,42,.15);
         border: 1px solid rgba(148,163,184,.4);
-        border-radius: .4rem;
-        padding: .35rem .6rem;
+        border-radius: .5rem;
+        padding: .45rem .6rem;
         color: #e2e8f0;
       }
       .topbar { display: flex; gap: 1rem; align-items: center; margin-bottom: .8rem; }
@@ -100,12 +100,14 @@
       <h1 style="margin-bottom:.3rem;">Admin panel</h1>
       <p class="small">Approve incoming confessions. Keep this URL private.</p>
 
-      <div id="lock">
-        <p class="small" style="margin-top:.6rem;">Enter admin password:</p>
-        <input type="password" id="pwd" />
+      <!-- TOKEN LOCK -->
+      <div id="lock" class="card">
+        <p class="small" style="margin-top:.2rem;">Enter admin token:</p>
+        <input type="password" id="admintoken" placeholder="Admin token" />
         <button onclick="unlock()">Enter</button>
       </div>
 
+      <!-- PANEL -->
       <div id="panel" class="hidden">
         <div class="topbar">
           <button onclick="loadPending()">Reload</button>
@@ -116,25 +118,19 @@
     </main>
 
     <script>
-      // your supabase config (same as other pages)
+      // Supabase (anon) – sadece PENDING listelemek için
       const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
-
       const { createClient } = window.supabase;
       const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // simple front-only password
-      const ADMIN_PASS = "4815162342"; // change this
-
       function unlock() {
-        const val = document.getElementById('pwd').value;
-        if (val === ADMIN_PASS) {
-          document.getElementById('lock').classList.add('hidden');
-          document.getElementById('panel').classList.remove('hidden');
-          loadPending();
-        } else {
-          alert('Wrong password');
-        }
+        const t = document.getElementById('admintoken').value.trim();
+        if (!t) return alert('Token required');
+        localStorage.setItem('ADMIN_TOKEN', t);
+        document.getElementById('lock').classList.add('hidden');
+        document.getElementById('panel').classList.remove('hidden');
+        loadPending();
       }
 
       async function loadPending() {
@@ -145,38 +141,34 @@
           .select('*')
           .eq('approved', false)
           .order('created_at', { ascending: false });
-        if (error) {
-          list.innerHTML = 'Error loading.';
-          return;
-        }
-        if (!data.length) {
+
+        if (error) { list.innerHTML = 'Error loading.'; return; }
+        if (!data || !data.length) {
           list.innerHTML = '<p class="small">No pending confessions 🎉</p>';
           return;
         }
-        list.innerHTML = '';
-        data.forEach(row => {
-          const div = document.createElement('div');
-          div.className = 'card';
-          div.innerHTML = `
-            <p>${row.text}</p>
+        list.innerHTML = data.map(row => `
+          <div class="card">
+            <p>${escapeHtml(row.text)}</p>
             <p class="small">${new Date(row.created_at).toLocaleString()}</p>
             <button onclick="approve('${row.id}')">Approve</button>
-          `;
-          list.appendChild(div);
-        });
+          </div>
+        `).join('');
       }
 
       async function approve(id) {
-        const { error } = await supabase
-          .from('confessions')
-          .update({ approved: true })
-          .eq('id', id);
-        if (error) {
-          alert('Error approving');
-          return;
-        }
+        const token = localStorage.getItem('ADMIN_TOKEN') || '';
+        if (!token) return alert('No admin token');
+        const r = await fetch(`/api/approve?id=${encodeURIComponent(id)}`, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (!r.ok) { alert('Approve failed'); return; }
         document.getElementById('status').textContent = 'Approved ✓';
         loadPending();
+      }
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       }
     </script>
   </body>
