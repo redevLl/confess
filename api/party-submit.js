@@ -14,15 +14,22 @@ module.exports = async (req, res) => {
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 
-    const { data:room } = await supabase.from('party_rooms')
-      .select('id, round, status, expires_at').eq('code',code).maybeSingle();
+    const roomQ = await supabase.from('party_rooms')
+      .select('id, round, status, duration_seconds, writing_started_at')
+      .eq('code',code).maybeSingle();
+    const room = roomQ.data;
     if (!room) return res.status(404).json({ error:'not_found' });
-    if (new Date(room.expires_at) < new Date()) return res.status(410).json({ error:'expired' });
-    if (room.status !== 'collecting') return res.status(409).json({ error:'not_collecting' });
+    if (room.status !== 'writing') return res.status(409).json({ error:'not_writing' });
 
-    const { error:insErr } = await supabase.from('party_entries')
+    // (opsiyonel timer kontrolü)
+    if (room.duration_seconds > 0 && room.writing_started_at){
+      const left = room.duration_seconds - Math.floor((Date.now() - new Date(room.writing_started_at).getTime())/1000);
+      if (left <= 0) return res.status(409).json({ error:'time_over' });
+    }
+
+    const ins = await supabase.from('party_entries')
       .insert({ room_id: room.id, round: room.round, nickname, text });
-    if (insErr) return res.status(500).json({ error:'insert_failed' });
+    if (ins.error) return res.status(500).json({ error:'insert_failed' });
 
     return res.json({ ok:true });
   }catch{
