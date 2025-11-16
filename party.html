@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Party Mode • Confession Wall</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto; background:#0b1422; color:#e9f0ff; margin:0}
+    header{background:rgba(2,6,23,.45); border-bottom:1px solid rgba(148,163,184,.12); backdrop-filter:blur(8px)}
+    .nav{max-width:960px; margin:0 auto; padding:.8rem 1.2rem; display:flex; justify-content:space-between; align-items:center}
+    .nav a{color:#e9f0ff; text-decoration:none}
+    main{max-width:960px; margin:0 auto; padding:1.2rem}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+    .card{background:#0f1b2e; border:1px solid #1f2a44; border-radius:12px; padding:14px; margin:10px 0}
+    input,textarea{background:#0f1b2e; border:1px solid #1f2a44; color:#e9f0ff; padding:8px 10px; border-radius:10px; width:100%}
+    button{background:#2d68ff; color:#fff; border:0; padding:8px 12px; border-radius:10px; cursor:pointer}
+    .muted{opacity:.7; font-size:.9rem}
+    .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+    .tag{display:inline-block; padding:.2rem .5rem; border:1px solid #1f2a44; border-radius:999px; font-size:.8rem; opacity:.8}
+    .success{color:#86efac}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <a href="/">Confession Wall</a>
+      <div class="row">
+        <a href="/public.html" class="muted">Public</a>
+        <a href="/submit.html" class="muted">Submit</a>
+        <a href="/party.html" class="muted">Party</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <h1>Party Mode</h1>
+    <p class="muted">Create a room, share the 6-char code, everyone types at the same time. Host reveals all at once.</p>
+
+    <div class="card" id="createBox">
+      <h3>Create room (host)</h3>
+      <div class="row">
+        <input id="topic" placeholder="Topic (optional)"/>
+        <button onclick="createRoom()">Create</button>
+      </div>
+      <div id="createResult" class="muted"></div>
+    </div>
+
+    <div class="card" id="joinBox">
+      <h3>Join room</h3>
+      <div class="row">
+        <input id="code" placeholder="Code (e.g. ABC123)" />
+        <input id="nick" placeholder="Nickname" />
+        <button onclick="joinRoom()">Join</button>
+      </div>
+      <div id="joinResult" class="muted"></div>
+    </div>
+
+    <div id="roomUI" class="hidden">
+      <div class="card">
+        <div class="row"><div>Room <span class="tag" id="roomCode"></span> <span class="tag" id="roomRound"></span> <span class="tag" id="roomStatus"></span></div></div>
+        <div class="muted" id="roomTopic"></div>
+      </div>
+
+      <div class="card" id="hostBar" style="display:none;">
+        <b>Host controls</b>
+        <div class="row" style="margin-top:8px;">
+          <button onclick="reveal()">Reveal</button>
+          <button onclick="nextRound()">Next Round</button>
+          <span id="hostMsg" class="muted"></span>
+        </div>
+      </div>
+
+      <div class="card" id="submitBox">
+        <h3>Your entry</h3>
+        <textarea id="entry" rows="3" maxlength="240" placeholder="Write your confession (or bluff)…"></textarea>
+        <div class="row" style="margin-top:8px;">
+          <button onclick="submitEntry()">Submit</button>
+          <span id="submitMsg" class="muted"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Round entries</h3>
+        <div id="entries" class="grid"></div>
+        <div id="entriesHint" class="muted"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // helpers
+    const $ = sel => document.querySelector(sel);
+    const h = (obj={}) => { const H = new Headers(); H.set('Content-Type','application/json'); return H; };
+
+    let ROOM_CODE = (new URLSearchParams(location.search).get('code')||'').toUpperCase();
+    let HOST_MODE = (new URLSearchParams(location.search).get('host') === '1');
+    let HOST_SECRET = (new URLSearchParams(location.search).get('secret') || '').trim();
+    let NICK = '';
+
+    function show(el, on=true){ el.style.display = on ? '' : 'none'; }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    async function createRoom(){
+      const topic = $('#topic').value.trim();
+      $('#createResult').textContent = 'Creating…';
+      const r = await fetch('/api/party-create', { method:'POST', headers:h(), body: JSON.stringify({ topic }) });
+      const j = await r.json();
+      if(!r.ok){ $('#createResult').textContent = 'Error: ' + (j.error||r.status); return; }
+      $('#createResult').innerHTML = `Room created ✓ Code: <b>${j.code}</b><br>
+        Host link: <a href="${j.hostUrl}">${j.hostUrl}</a><br>
+        Join link: <a href="${j.joinUrl}">${j.joinUrl}</a>`;
+    }
+
+    async function joinRoom(){
+      ROOM_CODE = ($('#code').value || ROOM_CODE).toUpperCase();
+      NICK = ($('#nick').value || 'Anonymous').trim().slice(0,24);
+      if(!ROOM_CODE){ $('#joinResult').textContent = 'Enter a code'; return; }
+      $('#joinResult').textContent = 'Joining…';
+      const r = await fetch('/api/party-join', { method:'POST', headers:h(), body: JSON.stringify({ code: ROOM_CODE }) });
+      const j = await r.json();
+      if(!r.ok){ $('#joinResult').textContent = j.error || ('Error ' + r.status); return; }
+      $('#joinResult').textContent = 'Joined ✓';
+      bootRoomUI(j.room);
+    }
+
+    function bootRoomUI(room){
+      $('#roomUI').classList.remove('hidden');
+      $('#createBox').style.display='none';
+      $('#joinBox').style.display='none';
+      $('#roomCode').textContent = room.code;
+      $('#roomRound').textContent = 'Round ' + room.round;
+      $('#roomStatus').textContent = room.status;
+      $('#roomTopic').textContent = room.topic ? ('Topic: ' + room.topic) : '';
+      show($('#hostBar'), HOST_MODE && !!HOST_SECRET);
+      poll(); // start polling
+    }
+
+    async function poll(){
+      if(!ROOM_CODE) return;
+      try{
+        const r = await fetch('/api/party-list', { method:'POST', headers:h(), body: JSON.stringify({ code: ROOM_CODE }) });
+        const j = await r.json();
+        if(!r.ok){ $('#entriesHint').textContent = j.error || ('Error ' + r.status); setTimeout(poll, 2000); return; }
+        // update room labels
+        $('#roomRound').textContent = 'Round ' + j.room.round;
+        $('#roomStatus').textContent = j.room.status;
+        // rendering
+        const box = $('#entries');
+        box.innerHTML = '';
+        if (j.room.status === 'collecting'){
+          $('#entriesHint').textContent = `Entries so far: ${j.entries.length}. Waiting for reveal…`;
+          j.entries.forEach(()=> {
+            const d=document.createElement('div'); d.className='card'; d.innerHTML='<i>hidden until reveal</i>'; box.appendChild(d);
+          });
+        } else {
+          $('#entriesHint').textContent = '';
+          j.entries.forEach(e=>{
+            const d=document.createElement('div'); d.className='card';
+            d.innerHTML = `<div>${escapeHtml(e.text)}</div><div class="muted">by ??</div>`;
+            box.appendChild(d);
+          });
+        }
+      }catch(e){
+        $('#entriesHint').textContent = 'Network error';
+      }
+      setTimeout(poll, 2000);
+    }
+
+    async function submitEntry(){
+      const text = $('#entry').value.trim();
+      if (!ROOM_CODE){ alert('Join a room first'); return; }
+      if (!text){ alert('Write something'); return; }
+      $('#submitMsg').textContent = 'Sending…';
+      const r = await fetch('/api/party-submit', { method:'POST', headers:h(), body: JSON.stringify({ code: ROOM_CODE, nickname: NICK, text }) });
+      const j = await r.json();
+      if (!r.ok){ $('#submitMsg').textContent = j.error || ('Error ' + r.status); return; }
+      $('#submitMsg').innerHTML = '<span class="success">Submitted ✓</span>';
+      $('#entry').value='';
+    }
+
+    async function reveal(){
+      if (!HOST_MODE || !HOST_SECRET){ alert('Host only'); return; }
+      $('#hostMsg').textContent = 'Revealing…';
+      const r = await fetch('/api/party-reveal', { method:'POST', headers:h(), body: JSON.stringify({ code: ROOM_CODE, secret: HOST_SECRET }) });
+      const j = await r.json();
+      if(!r.ok){ $('#hostMsg').textContent = j.error || ('Error ' + r.status); return; }
+      $('#hostMsg').textContent = 'Revealed ✓';
+    }
+
+    async function nextRound(){
+      if (!HOST_MODE || !HOST_SECRET){ alert('Host only'); return; }
+      $('#hostMsg').textContent = 'Next round…';
+      const r = await fetch('/api/party-next', { method:'POST', headers:h(), body: JSON.stringify({ code: ROOM_CODE, secret: HOST_SECRET }) });
+      const j = await r.json();
+      if(!r.ok){ $('#hostMsg').textContent = j.error || ('Error ' + r.status); return; }
+      $('#hostMsg').textContent = 'Round started ✓';
+      $('#entries').innerHTML = '';
+      $('#entriesHint').textContent = 'Waiting for entries…';
+    }
+
+    // if URL already has code/host
+    (async function(){
+      if (ROOM_CODE){
+        $('#code').value = ROOM_CODE;
+        await joinRoom();
+      }
+    })();
+  </script>
+</body>
+</html>
