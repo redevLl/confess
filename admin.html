@@ -136,11 +136,35 @@
       async function loadPending() {
         const list = document.getElementById('list');
         list.innerHTML = 'Loading...';
-        const { data, error } = await supabase
-          .from('confessions')
-          .select('*')
-          .eq('approved', false)
-          .order('created_at', { ascending: false });
+async function loadPending() {
+  const list = document.getElementById('list');
+  list.innerHTML = 'Loading...';
+
+  const token = localStorage.getItem('ADMIN_TOKEN') || '';
+  if (!token) { list.innerHTML = 'No admin token'; return; }
+
+  const r = await fetch('/api/pending', {
+    headers: { Authorization: 'Bearer ' + token }
+  });
+
+  if (r.status === 401) { list.innerHTML = 'Unauthorized (bad token)'; return; }
+  if (!r.ok) { list.innerHTML = 'Error loading.'; return; }
+
+  const { data } = await r.json();
+  if (!data || !data.length) {
+    list.innerHTML = '<p class="small">No pending confessions 🎉</p>';
+    return;
+  }
+
+  list.innerHTML = data.map(row => `
+    <div class="card">
+      <p>${escapeHtml(row.text)}</p>
+      <p class="small">${new Date(row.created_at).toLocaleString()}</p>
+      <button onclick="approve('${row.id}')">Approve</button>
+    </div>
+  `).join('');
+}
+
 
         if (error) { list.innerHTML = 'Error loading.'; return; }
         if (!data || !data.length) {
