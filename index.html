@@ -194,6 +194,23 @@
       a { color: inherit; }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+(function(){
+  const h = new Date().getHours();
+  const night = (h >= 23 || h < 5);
+  if (night) document.documentElement.classList.add('night');
+})();
+</script>
+<style>
+  .night body { filter: brightness(.9) contrast(1.05); }
+  .night .card { box-shadow: 0 0 24px rgba(56,189,248,.12) inset, 0 0 10px rgba(56,189,248,.15); }
+  .night .links a:hover { box-shadow: 0 0 10px rgba(56,189,248,.35); }
+</style>
+<script>
+if (new URLSearchParams(location.search).get('night') === '1') {
+  document.documentElement.classList.add('night');
+}
+</script>
   </head>
   <body>
     <header>
