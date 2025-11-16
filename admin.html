@@ -11,76 +11,29 @@
         --border: rgba(148, 163, 184, 0.14);
         --text: #e2e8f0;
         --muted: rgba(226, 232, 240, 0.6);
-        --accent: #38bdf8;
       }
       * { box-sizing: border-box; }
       body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-        min-height: 100vh;
+        margin: 0; background: var(--bg); color: var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh;
       }
-      header {
-        background: rgba(2,6,23,.45);
-        border-bottom: 1px solid rgba(148,163,184,.12);
-        backdrop-filter: blur(8px);
+      header { background: rgba(2,6,23,.45); border-bottom: 1px solid rgba(148,163,184,.12); backdrop-filter: blur(8px); }
+      .nav { max-width:1140px; margin:0 auto; padding:.8rem 1.2rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+      .logo a { color: var(--text); text-decoration:none; font-weight:700; }
+      .links { display:flex; gap:.55rem; flex-wrap:wrap; }
+      .links a { color:var(--muted); text-decoration:none; font-size:.7rem; padding:.35rem .7rem; border-radius:9999px; }
+      .links a:hover { background: rgba(56,189,248,.12); color:var(--text); }
+      main { max-width:1140px; margin:0 auto; padding:1.4rem 1.2rem 2.5rem; }
+      .card { background: var(--card); border:1px solid var(--border); border-radius:.8rem; padding:.85rem .9rem .7rem; margin-bottom:.75rem; }
+      .small { font-size:.75rem; color:var(--muted); }
+      button { background:#22c55e; border:none; padding:.45rem .8rem; border-radius:.5rem; font-weight:600; cursor:pointer; }
+      .hidden { display:none; }
+      input[type=password]{
+        background: rgba(15,23,42,.15); border:1px solid rgba(148,163,184,.4);
+        border-radius:.5rem; padding:.45rem .6rem; color:#e2e8f0;
       }
-      .nav {
-        max-width: 1140px;
-        margin: 0 auto;
-        padding: .8rem 1.2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-      }
-      .logo a { color: var(--text); text-decoration: none; font-weight: 700; }
-      .links { display: flex; gap: .55rem; flex-wrap: wrap; }
-      .links a {
-        color: var(--muted);
-        text-decoration: none;
-        font-size: .7rem;
-        padding: .35rem .7rem;
-        border-radius: 9999px;
-      }
-      .links a:hover {
-        background: rgba(56,189,248,.12);
-        color: var(--text);
-      }
-      main {
-        max-width: 1140px;
-        margin: 0 auto;
-        padding: 1.4rem 1.2rem 2.5rem;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: .8rem;
-        padding: .85rem .9rem .7rem;
-        margin-bottom: .75rem;
-      }
-      .small { font-size: .75rem; color: var(--muted); }
-      button {
-        background: #22c55e;
-        border: none;
-        padding: .45rem .8rem;
-        border-radius: .5rem;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      .danger { background: #ef4444; }
-      .hidden { display: none; }
-      input[type=password] {
-        background: rgba(15,23,42,.15);
-        border: 1px solid rgba(148,163,184,.4);
-        border-radius: .5rem;
-        padding: .45rem .6rem;
-        color: #e2e8f0;
-      }
-      .topbar { display: flex; gap: 1rem; align-items: center; margin-bottom: .8rem; }
+      .topbar { display:flex; gap:1rem; align-items:center; margin-bottom:.8rem; }
     </style>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <header>
@@ -118,81 +71,82 @@
     </main>
 
     <script>
-      // Supabase (anon) – sadece PENDING listelemek için
-      const SUPABASE_URL = "https://ijlmspfmmxnktsggoitd.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqbG1zcGZtbXhua3RzZ2dvaXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MzE1ODQsImV4cCI6MjA3ODQwNzU4NH0.s_lj8SNu64M0W4rM-sWTOJdN9DhxQ6XnqCawdY-c4dY";
-      const { createClient } = window.supabase;
-      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // --- Helpers ---
+      function escapeHtml(s){
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+      function getToken(){
+        return (sessionStorage.getItem('ADMIN_TOKEN') || '')
+          .replace(/[^\x20-\x7E]/g,'')
+          .trim();
+      }
 
-      function unlock() {
-        const t = document.getElementById('admintoken').value.trim();
-        if (!t) return alert('Token required');
-        localStorage.setItem('ADMIN_TOKEN', t);
+      // --- Auth lock ---
+      function unlock(){
+        let t = document.getElementById('admintoken').value || '';
+        t = t.replace(/[^\x20-\x7E]/g,'').trim();  // gizli/ASCII dışı karakterleri at
+        if(!t){ alert('Token required'); return; }
+        sessionStorage.setItem('ADMIN_TOKEN', t);
         document.getElementById('lock').classList.add('hidden');
         document.getElementById('panel').classList.remove('hidden');
         loadPending();
       }
 
-      async function loadPending() {
+      // Sayfayı açınca token varsa direkt paneli göster
+      document.addEventListener('DOMContentLoaded', ()=>{
+        if(getToken()){
+          document.getElementById('lock').classList.add('hidden');
+          document.getElementById('panel').classList.remove('hidden');
+          loadPending();
+        }
+      });
+
+      // --- Data: pending list ---
+      async function loadPending(){
         const list = document.getElementById('list');
         list.innerHTML = 'Loading...';
-async function loadPending() {
-  const list = document.getElementById('list');
-  list.innerHTML = 'Loading...';
 
-  const token = localStorage.getItem('ADMIN_TOKEN') || '';
-  if (!token) { list.innerHTML = 'No admin token'; return; }
+        const token = getToken();
+        if(!token){ list.innerHTML = 'No admin token'; return; }
 
-  const r = await fetch('/api/pending', {
-    headers: { Authorization: 'Bearer ' + token }
-  });
+        const h = new Headers();
+        h.set('Authorization','Bearer '+token);
 
-  if (r.status === 401) { list.innerHTML = 'Unauthorized (bad token)'; return; }
-  if (!r.ok) { list.innerHTML = 'Error loading.'; return; }
+        try{
+          const r = await fetch('/api/pending', { headers: h });
+          if (r.status === 401){ list.innerHTML = 'Unauthorized (bad token)'; return; }
+          if (!r.ok){ list.innerHTML = 'Error loading ('+r.status+')'; return; }
 
-  const { data } = await r.json();
-  if (!data || !data.length) {
-    list.innerHTML = '<p class="small">No pending confessions 🎉</p>';
-    return;
-  }
+          const { data } = await r.json();
+          if (!data || !data.length){
+            list.innerHTML = '<p class="small">No pending confessions 🎉</p>';
+            return;
+          }
 
-  list.innerHTML = data.map(row => `
-    <div class="card">
-      <p>${escapeHtml(row.text)}</p>
-      <p class="small">${new Date(row.created_at).toLocaleString()}</p>
-      <button onclick="approve('${row.id}')">Approve</button>
-    </div>
-  `).join('');
-}
-
-
-        if (error) { list.innerHTML = 'Error loading.'; return; }
-        if (!data || !data.length) {
-          list.innerHTML = '<p class="small">No pending confessions 🎉</p>';
-          return;
+          list.innerHTML = data.map(row => `
+            <div class="card">
+              <p>${escapeHtml(row.text)}</p>
+              <p class="small">${new Date(row.created_at).toLocaleString()}</p>
+              <button onclick="approve('${row.id}')">Approve</button>
+            </div>
+          `).join('');
+        }catch(e){
+          list.innerHTML = 'Network error';
         }
-        list.innerHTML = data.map(row => `
-          <div class="card">
-            <p>${escapeHtml(row.text)}</p>
-            <p class="small">${new Date(row.created_at).toLocaleString()}</p>
-            <button onclick="approve('${row.id}')">Approve</button>
-          </div>
-        `).join('');
       }
 
-      async function approve(id) {
-        const token = localStorage.getItem('ADMIN_TOKEN') || '';
-        if (!token) return alert('No admin token');
-        const r = await fetch(`/api/approve?id=${encodeURIComponent(id)}`, {
-          headers: { Authorization: 'Bearer ' + token }
-        });
-        if (!r.ok) { alert('Approve failed'); return; }
+      // --- Approve action ---
+      async function approve(id){
+        const token = getToken();
+        if(!token){ alert('No admin token'); return; }
+
+        const h = new Headers();
+        h.set('Authorization','Bearer '+token);
+
+        const r = await fetch('/api/approve?id='+encodeURIComponent(id), { headers: h });
+        if(!r.ok){ alert('Approve failed'); return; }
         document.getElementById('status').textContent = 'Approved ✓';
         loadPending();
-      }
-
-      function escapeHtml(s){
-        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       }
     </script>
   </body>
