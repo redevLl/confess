@@ -10,27 +10,30 @@ module.exports = async (req, res) => {
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 
-    const { data:room } = await supabase.from('party_rooms')
-      .select('id, code, topic, round, status, expires_at, created_at')
+    const roomQ = await supabase.from('party_rooms')
+      .select('id, code, topic, round, status, max_players, duration_seconds, writing_started_at')
       .eq('code', code).maybeSingle();
-    if (!room) return res.status(404).json({ error:'not_found' });
-    if (new Date(room.expires_at) < new Date()) return res.status(410).json({ error:'expired' });
+    if (!roomQ.data) return res.status(404).json({ error:'not_found' });
+    const room = roomQ.data;
 
-    let entries = [];
+    const membersQ = await supabase.from('party_members')
+      .select('id, nickname, ready')
+      .eq('room_id', room.id).order('joined_at', { ascending:true });
+
+    let entries=[];
     if (room.status === 'revealed'){
-      const q = await supabase.from('party_entries')
+      const eQ = await supabase.from('party_entries')
         .select('id, text, nickname, created_at')
         .eq('room_id', room.id).eq('round', room.round)
-        .order('created_at', { ascending:true });
-      entries = q.data || [];
-    } else {
-      const q = await supabase.from('party_entries')
-        .select('id')  // collecting sırasında sadece sayısını veririz
-        .eq('room_id', room.id).eq('round', room.round);
-      entries = Array(q.data?.length || 0).fill({});
+        .order('created_at',{ascending:true});
+      entries = eQ.data || [];
+    } else if (room.status === 'writing'){
+      const eQ = await supabase.from('party_entries')
+        .select('id').eq('room_id', room.id).eq('round', room.round);
+      entries = Array(eQ.data?.length||0).fill({});
     }
 
-    return res.json({ room, entries });
+    return res.json({ room, members: membersQ.data||[], entries });
   }catch{
     return res.status(500).json({ error:'server_error' });
   }
